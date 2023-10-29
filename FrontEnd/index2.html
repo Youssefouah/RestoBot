@@ -1,0 +1,233 @@
+<html>
+  <body>
+    <script
+      type="text/javascript"
+      src="lib/axios/dist/axios.standalone.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="lib/CryptoJS/rollups/hmac-sha256.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="lib/CryptoJS/rollups/sha256.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="lib/CryptoJS/components/hmac.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="lib/CryptoJS/components/enc-base64.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="lib/url-template/url-template.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="lib/apiGatewayCore/sigV4Client.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="lib/apiGatewayCore/apiGatewayClient.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="lib/apiGatewayCore/simpleHttpClient.js"
+    ></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/utils.js"></script>
+    <script type="text/javascript" src="apigClient.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <style type="text/css">
+      @import url(
+        https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,
+        700
+      );
+
+      body {
+        font-family: helvetica;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .chat {
+        width: 500px;
+        border: solid 1px #eee;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+      }
+
+      .messages {
+        margin-top: 30px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .message {
+        border-radius: 20px;
+        padding: 8px 15px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        display: inline-block;
+      }
+
+      .yours {
+        align-items: flex-start;
+      }
+
+      .yours .message {
+        margin-right: 25%;
+        background-color: #eee;
+        position: relative;
+      }
+
+      .yours .message.last:before {
+        content: "";
+        position: absolute;
+        z-index: 0;
+        bottom: 0;
+        left: -7px;
+        height: 20px;
+        width: 20px;
+        background: #eee;
+        border-bottom-right-radius: 15px;
+      }
+      .yours .message.last:after {
+        content: "";
+        position: absolute;
+        z-index: 1;
+        bottom: 0;
+        left: -10px;
+        width: 10px;
+        height: 20px;
+        background: white;
+        border-bottom-right-radius: 10px;
+      }
+
+      .mine {
+        align-items: flex-end;
+      }
+
+      .mine .message {
+        color: white;
+        margin-left: 25%;
+        background: linear-gradient(to bottom, #00d0ea 0%, #0085d1 100%);
+        background-attachment: fixed;
+        position: relative;
+      }
+
+      .mine .message.last:before {
+        content: "";
+        position: absolute;
+        z-index: 0;
+        bottom: 0;
+        right: -8px;
+        height: 20px;
+        width: 20px;
+        background: linear-gradient(to bottom, #00d0ea 0%, #0085d1 100%);
+        background-attachment: fixed;
+        border-bottom-left-radius: 15px;
+      }
+
+      .mine .message.last:after {
+        content: "";
+        position: absolute;
+        z-index: 1;
+        bottom: 0;
+        right: -10px;
+        width: 10px;
+        height: 20px;
+        background: white;
+        border-bottom-left-radius: 10px;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 15px 10px;
+        margin: 10px 5px;
+        box-sizing: border-box;
+        font-size: 16px;
+      }
+    </style>
+
+    <h1>RestoBot</h1>
+    <div class="chat" id="chat">
+      <div class="yours messages">
+        <div class="message last">
+          Hi! I'm RestoBot, how may I assist you?
+        </div>
+      </div>
+    </div>
+
+    <div class="chat2">
+      <form action="#0" id="user-input-form">
+        <input
+          type="text"
+          id="user-input"
+          class="user-input"
+          placeholder="Type something here..."
+        />
+      </form>
+    </div>
+
+    <script type="text/javascript">
+      var apigClient = apigClientFactory.newClient();
+    </script>
+
+    <script type="text/javascript">
+      var outputArea = $("#chat");
+
+      $("#user-input-form").on("submit", function(e) {
+        e.preventDefault();
+
+        var message = $("#user-input").val();
+
+        console.log(message);
+
+        var params = {
+          //This is where any header, path, or querystring request params go. The key is the parameter named as defined in the API
+        };
+        var body = {
+          //This is where you define the body of the request
+          message: $("#user-input").val()
+        };
+        var additionalParams = {
+          //If there are any unmodeled query parameters or headers that need to be sent with the request you can add them here
+          headers: {},
+          queryParams: {}
+        };
+
+        apigClient
+          .chatbotPost(params, body, additionalParams)
+          .then(function(result) {
+            console.log(result);
+            console.log(result.data.body);
+
+            setTimeout(function() {
+              outputArea.append(`
+                <div class="yours messages">
+                  <div class="message last">
+                    ${result.data.body}
+                  </div>
+                </div>
+                `);
+            }, 250);
+          });
+
+        outputArea.append(`
+          <div class="mine messages">
+            <div class="message last">
+              ${message}
+            </div>
+          </div>
+        `);
+
+        $("#user-input").val("");
+      });
+    </script>
+  </body>
+</html>
